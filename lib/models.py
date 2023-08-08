@@ -4,7 +4,6 @@ from sqlalchemy import (
     Column,
     String,
     Integer,
-    Float,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -19,15 +18,11 @@ class Artist(Base):
 
     id = Column(Integer(), primary_key=True)
     name = Column(String())
-    age = Column(Integer())
-    nationality = Column(String())
 
     def __repr__(self):
         return f"\n \
-            <id: {self.id} \n \
-            <name: {self.name} \n \
-            <age: {self.age} \n \
-            <nationality: {self.nationality} "
+            <id: {self.id}>, \n \
+            <name: {self.name}>"
 
 
 class Song(Base):
@@ -39,9 +34,9 @@ class Song(Base):
 
     def __repr__(self):
         return f"\n \
-            <id: {self.id} \n \
-            <name: {self.name} \n \
-            <genre: {self.genre}"
+            <id: {self.id}>, \n \
+            <name: {self.name}>, \n \
+            <genre: {self.genre}>"
 
 
 class User(Base):
@@ -54,17 +49,16 @@ class User(Base):
 
     def __repr__(self):
         return f"\n \
-            <id: {self.id} \n \
-            <name: {self.name} \n \
-            <age: {self.age} \n \
-            <nationality: {self.nationality} "
+            <id: {self.id}>, \n \
+            <name: {self.name}>, \n \
+            <age: {self.age}>, \n \
+            <nationality: {self.nationality}>"
 
 
-class Album(Base):
-    __tablename__ = "albums"
+class Publish(Base):
+    __tablename__ = "publishes"
 
     id = Column(Integer(), primary_key=True)
-    name = Column(String())
     artist_id = Column(Integer(), ForeignKey("artists.id"))
     artist = relationship("Artist", backref="albums")
     song_id = Column(Integer(), ForeignKey("songs.id"))
@@ -72,10 +66,10 @@ class Album(Base):
 
     def __repr__(self):
         return f"\n \
-            <id: {self.id} \n \
-            <name: {self.name} \n \
-            <artist_id: {self.artist_id} \n \
-            <song_id: {self.song_id}"
+            <id: {self.id}>, \n \
+            <name: {self.name}>, \n \
+            <artist_id: {self.artist_id}>,\n \
+            <song_id: {self.song_id}>"
 
 
 class Save(Base):
@@ -89,6 +83,6 @@ class Save(Base):
 
     def __repr__(self):
         return f"\n \
-            <id: {self.id} \n \
-            <user_id: {self.user_id} \n \
-            <song_id: {self.song_id}"
+            <id: {self.id}>, \n \
+            <user_id: {self.user_id}>, \n \
+            <song_id: {self.song_id}>"

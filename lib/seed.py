@@ -1,8 +1,11 @@
-from models import engine, Artist, Album, Song, Save, User
+from models import engine, Artist, Publish, Song, Save, User
 import random
 from faker import Faker
 from faker.providers import BaseProvider
 from sqlalchemy.orm import sessionmaker
+import requests
+import math as m
+
 
 if __name__ == "__main__":
     Session = sessionmaker(bind=engine)
@@ -10,10 +13,36 @@ if __name__ == "__main__":
     fake = Faker()
 
     session.query(Artist).delete()
-    session.query(Album).delete()
+    session.query(Publish).delete()
     session.query(Song).delete()
     session.query(Save).delete()
     session.query(User).delete()
+
+    url = "https://theaudiodb.p.rapidapi.com/track-top10.php"
+    headers = {
+        "X-RapidAPI-Key": "e47623508emsh383f932cc8b3ca9p1c0b5djsn6ca516bc61c0",
+        "X-RapidAPI-Host": "theaudiodb.p.rapidapi.com",
+    }
+
+    # querystring = {"s": "taylor swift"}
+
+    # response = requests.get(url, headers=headers, params=querystring)
+
+    artistToFetch = [
+        "taylor swift",
+        "coldplay",
+        "the weeknd",
+        # "joji",
+        "adele",
+        "bruno mars",
+    ]
+
+    responses = []
+    for idx, a in enumerate(artistToFetch):
+        response = requests.get(url, headers=headers, params={"s": f"{a}"})
+        responses.append(response.json()["track"])
+
+    # print(responses)
 
     class NewProvider(BaseProvider):
         def nationality_provider(self):
@@ -215,28 +244,25 @@ if __name__ == "__main__":
     fake.add_provider(NewProvider)
 
     artists = []
-    for _ in range(10):
-        artist = Artist(
-            name=f"{fake.first_name()} {fake.last_name()}",
-            age=f"{random.randint(12, 70)}",
-            nationality=f"{fake.nationality_provider()}",
-        )
+    for idx, res in enumerate(responses):
+        artist = Artist(name=artistToFetch[idx])
         session.add(artist)
         session.commit()
         artists.append(artist)
 
     songs = []
-    for _ in range(100):
-        song = Song(
-            name=f"{fake.sentence(nb_words=3)}",
-            genre=f'{random.choice(["Pop","Hip hop","Rock","Rhythm and blues","Soul","Reggae","Country","Funk","Folk","Jazz","Disco","Classical","Electronic","Blues","New age","Christian","Traditional","Ska","Indian classical","Metal","Brazilian","Flamenco","Salsa","Merengue","Bachata"])}',
-        )
-        session.add(song)
-        session.commit()
-        songs.append(song)
+    for res in responses:
+        for s in res:
+            song = Song(
+                name=s.get("strTrack"),
+                genre=s.get("strGenre"),
+            )
+            session.add(song)
+            session.commit()
+            songs.append(song)
 
     users = []
-    for _ in range(30):
+    for _ in range(20):
         user = User(
             name=f"{fake.first_name()} {fake.last_name()}",
             age=f"{random.randint(12, 70)}",
@@ -246,20 +272,18 @@ if __name__ == "__main__":
         session.commit()
         users.append(user)
 
-    albums = []
-    for n in artists:
-        index = 0
-        album_name = f"{fake.sentence(nb_words=1)}"
-        for s in range(5):
-            album = Album(
-                name=album_name,
-                artist_id=random.choice(artists).id,
-                song_id=songs[index].id,
-            )
-            index += 1
-            session.add(album)
-            session.commit()
-            albums.append(album)
+    publishes = []
+    for idx, s in enumerate(songs):
+        val = m.floor(
+            (idx / 10)
+        )  # gets the first 10 songs and assumes theyre the first artist
+        publish = Publish(
+            artist_id=artists[val].id,
+            song_id=s.id,
+        )
+        session.add(publish)
+        session.commit()
+        publishes.append(publish)
 
     saves = []
     for n in users:
