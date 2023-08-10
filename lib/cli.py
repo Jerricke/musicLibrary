@@ -181,11 +181,8 @@ class menuDirectory:
             deleteOpt.append(n.name)
         deleteP = inquirer.list_input("Select Song To Delete", choices=deleteOpt)
 
-        print(deleteP)
         q1 = session.query(Song).filter_by(name=deleteP).first()
-        print(q1)
         q2 = session.query(Save).filter_by(user_id=q.id, song_id=q1.id).first()
-        print(q2)
         session.delete(q2)
         session.commit()
         print("* Song Deleted * \n")
@@ -249,8 +246,9 @@ class menuDirectory:
             "Artists": self.artists,
             "Songs": self.songs,
             "Users": self.users,
+            "Exit": self.exit,
         }
-        menuDict.get(action, self.exit)()
+        menuDict.get(action)()
 
     def exit(self):
         print(f.renderText("Thank you for using Poorman's Spotify"))
