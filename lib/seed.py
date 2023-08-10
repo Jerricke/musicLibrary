@@ -28,22 +28,6 @@ if __name__ == "__main__":
 
     # response = requests.get(url, headers=headers, params=querystring)
 
-    artistToFetch = [
-        "taylor swift",
-        "coldplay",
-        "the weeknd",
-        # "joji",
-        "adele",
-        "bruno mars",
-    ]
-
-    responses = []
-    for idx, a in enumerate(artistToFetch):
-        response = requests.get(url, headers=headers, params={"s": f"{a}"})
-        responses.append(response.json()["track"])
-
-    # print(responses)
-
     class NewProvider(BaseProvider):
         def nationality_provider(self):
             return random.choice(
@@ -243,15 +227,30 @@ if __name__ == "__main__":
 
     fake.add_provider(NewProvider)
 
+    artistToFetch = [
+        "taylor swift",
+        "coldplay",
+        "the weeknd",
+        "adele",
+        "bruno mars",
+    ]
+
     artists = []
-    for idx, res in enumerate(responses):
-        artist = Artist(name=artistToFetch[idx])
+    for a in artistToFetch:
+        artist = Artist(name=a)
         session.add(artist)
         session.commit()
         artists.append(artist)
 
+    responses = []
     songs = []
-    for res in responses:
+    publishes = []
+    for idx, a in enumerate(artistToFetch):
+        response = requests.get(url, headers=headers, params={"s": f"{a}"})
+        responses.append(response.json()["track"])
+        res = response.json()["track"]
+
+        newSongs = []
         for s in res:
             song = Song(
                 name=s.get("strTrack"),
@@ -260,6 +259,16 @@ if __name__ == "__main__":
             session.add(song)
             session.commit()
             songs.append(song)
+            newSongs.append(song)
+
+        for s in newSongs:
+            publish = Publish(
+                artist_id=artists[idx].id,
+                song_id=s.id,
+            )
+            session.add(publish)
+            session.commit()
+            publishes.append(publish)
 
     users = []
     for _ in range(20):
@@ -271,19 +280,6 @@ if __name__ == "__main__":
         session.add(user)
         session.commit()
         users.append(user)
-
-    publishes = []
-    for idx, s in enumerate(songs):
-        val = m.floor(
-            (idx / 10)
-        )  # gets the first 10 songs and assumes theyre the first artist
-        publish = Publish(
-            artist_id=artists[val].id,
-            song_id=s.id,
-        )
-        session.add(publish)
-        session.commit()
-        publishes.append(publish)
 
     saves = []
     for n in users:

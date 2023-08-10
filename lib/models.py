@@ -18,6 +18,7 @@ class Artist(Base):
 
     id = Column(Integer(), primary_key=True)
     name = Column(String())
+    songs = relationship("Song", secondary="publishes", backref="artists")
 
     def __repr__(self):
         return f"\n \
@@ -31,10 +32,11 @@ class Song(Base):
     id = Column(Integer(), primary_key=True)
     name = Column(String())
     genre = Column(String())
+    # artists = relationship("Artist", secondary="publishes", backref="publishes")
+    users = relationship("User", secondary="saves", backref="songs")
 
     def __repr__(self):
         return f"\n \
-            <id: {self.id}>, \n \
             <name: {self.name}>, \n \
             <genre: {self.genre}>"
 
@@ -60,9 +62,7 @@ class Publish(Base):
 
     id = Column(Integer(), primary_key=True)
     artist_id = Column(Integer(), ForeignKey("artists.id"))
-    artist = relationship("Artist", backref="albums")
     song_id = Column(Integer(), ForeignKey("songs.id"))
-    song = relationship("Song", backref="albums")
 
     def __repr__(self):
         return f"\n \
@@ -77,9 +77,7 @@ class Save(Base):
 
     id = Column(Integer(), primary_key=True)
     user_id = Column(Integer(), ForeignKey("users.id"))
-    user = relationship("User", backref="saves")
     song_id = Column(Integer(), ForeignKey("songs.id"))
-    song = relationship("Song", backref="saves")
 
     def __repr__(self):
         return f"\n \
