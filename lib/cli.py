@@ -251,7 +251,7 @@ class menuDirectory:
         menuDict.get(action)()
 
     def exit(self):
-        print(f.renderText("Thank you for using Poorman's Spotify"))
+        print(f.renderText("Thank you for using Music Library!"))
 
     def passer(self, notUsed=None):
         pass
@@ -259,7 +259,7 @@ class menuDirectory:
 
 if __name__ == "__main__":
     f = Figlet(font="big")
-    print(f.renderText("Poorman's Spotify"))
+    print(f.renderText("Music Library"))
     time.sleep(1)
     print(f.renderText("Loading"))
     for _ in range(6):
